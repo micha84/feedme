@@ -1,0 +1,63 @@
+version: "3.7"
+services:
+  apache:
+    build:
+      context: ./.environment/apache/
+      args:
+        PHP_VERSION: ${PHP_VERSION}
+    working_dir: ${REMOTE_LOCATION_WEB_SYNCFOLDER:-/var/www/html/}
+    depends_on:
+      - mariadb
+    networks:
+      default:
+        aliases:
+          - "dev.winnercircle.local"
+    volumes:
+      - webfolder-standard-sync:${REMOTE_LOCATION_WEB_SYNCFOLDER:-/var/www/html/}
+      - ./.environment/apache/scripts/entrypoint.sh:/tmp/scripts/entrypoint.sh:ro
+    container_name: ${APACHE_NAME}
+
+  mariadb:
+    image: mariadb:${MARIADB_VERSION:-latest}
+    restart: always
+    ports:
+      - "3306:3306"
+    volumes:
+      - database-standard-sync:${REMOTE_LOCATION_MARIADB_SYNCFOLDER:-/var/lib/mysql/}
+      - ./.environment/database/00_initial.sql:/docker-entrypoint-initdb.d/00_initial.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    container_name: ${MARIADB_NAME}
+
+  nginx_proxy:
+    build: ./.environment/nginx
+    container_name: ${NGINX_PROXY_NAME}
+    links:
+      - apache
+      - phpmyadmin
+    ports:
+      - "80:80"
+      - "443:443"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: ${PHPMYADMIN_NAME}
+    environment:
+      PMA_HOST: ${MARIADB_NAME}
+      PMA_USER: ${DB_USERNAME}
+      PMA_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "8080:80"
+    links:
+      - mariadb
+    depends_on:
+      - mariadb
+
+volumes:
+  webfolder-standard-sync:
+    external: true
+  database-standard-sync:
+    external: true

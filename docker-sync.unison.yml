@@ -1,0 +1,14 @@
+version: "2"
+syncs:
+  webfolder-standard-sync:
+    src: './htdocs'
+    sync_host_port: 10872
+    sync_strategy: 'unison'
+    sync_userid: '33' # important, because every synced file should have the user-rights and userid and group from www-data user
+    sync_excludes: [ '.idea', '.git', '.DS_Store' ]
+
+  database-standard-sync:
+    src: './.data'
+    sync_host_port: 10872
+    sync_strategy: 'unison'
+    sync_excludes: [ '.idea', '.git', '.DS_Store' ]

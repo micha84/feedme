@@ -1,0 +1,13 @@
+image: atlassian/default-image:2
+
+pipelines:
+  branches:
+    master:
+      - step:
+          script:
+            - pipe: atlassian/ssh-run:0.2.2
+              variables:
+                SSH_USER: ${SSH_USER_WC_JUMPHOST}
+                SERVER: ${HOSTNAME_WC_JUMPHOST}
+                COMMAND: 'ssh www-data@webserver "/var/www/html/g.sh"'
+                SSH_KEY: ${SSH_KEY_WC_JUMPHOST}
