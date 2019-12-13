@@ -11,7 +11,7 @@ services:
     networks:
       default:
         aliases:
-          - "dev.winnercircle.local"
+          - "dev.feedme.local"
     volumes:
       - webfolder-standard-sync:${REMOTE_LOCATION_WEB_SYNCFOLDER:-/var/www/html/}
       - ./.environment/apache/scripts/entrypoint.sh:/tmp/scripts/entrypoint.sh:ro
